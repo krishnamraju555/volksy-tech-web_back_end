@@ -1,33 +1,9 @@
-function updateStudentGradeByCity(students, city, newGrades) {
-  if (!Array.isArray(students)) {
-    return [];
-  }
-  if (!Array.isArray(newGrades)) {
-    return [];
-  }
+export default function createInt8TypedArray(length, position, value) {
+  if (position >= length) throw Error('Position outside range');
 
-  const stCity = students.filter((student) => student.location === city);
+  const buffer = new ArrayBuffer(length);
+  const int8 = new Int8Array(buffer, 0, length);
+  int8.set([value], position);
 
-  const studentsGraded = stCity.map((student) => {
-    const gradeFilter = newGrades.filter(
-      (newGrade) => newGrade.studentId === student.id,
-    );
-
-    let grade;
-
-    if (gradeFilter[0]) {
-      grade = gradeFilter[0].grade;
-    } else {
-      grade = 'N/A';
-    }
-
-    return {
-      ...student,
-      grade,
-    };
-  });
-
-  return studentsGraded;
+  return new DataView(buffer);
 }
-
-export default updateStudentGradeByCity;
