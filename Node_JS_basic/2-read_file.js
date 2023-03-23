@@ -1,40 +1,43 @@
 const fs = require('fs');
 
 function countStudents(path) {
-  let content;
-
   try {
-    content = fs.readFileSync(path);
-  } catch (err) {
-    throw new Error('Cannot load the database');
-  }
+    const results = fs.readFileSync(path, { encoding: 'utf8' }).split(/\r?\n/);
+    const lines = results;
+    let i = 0;
+    let countStudents = 0;
+    const fields = {};
 
-  content = content.toString().split('\n');
-
-  let students = content.filter((item) => item);
-
-  students = students.map((item) => item.split(','));
-
-  const NUMBER_OF_STUDENTS = students.length ? students.length - 1 : 0;
-  console.log(Number of students: ${NUMBER_OF_STUDENTS});
-
-  const fields = {};
-  for (const i in students) {
-    if (i !== 0) {
-      if (!fields[students[i][3]]) fields[students[i][3]] = [];
-
-      fields[students[i][3]].push(students[i][0]);
+    for (const line of lines) {
+      if (line.trim() !== '' && i > 0) {
+        countStudents += 1;
+				const [fname, lname, age, field] = line.split(','); // eslint-disable-line
+        if (!fields[field]) {
+          fields[field] = {
+            count: 1,
+            students: [fname],
+          };
+        } else {
+          const newCount = fields[field].count + 1;
+          const newStudents = (fields[field].students).concat(fname);
+          fields[field] = {
+            count: newCount,
+            students: newStudents,
+          };
+        }
+      }
+      i += 1;
     }
-  }
 
-  delete fields.field;
-
-  for (const key of Object.keys(fields)) {
-    console.log(
-      `Number of students in ${key}: ${fields[key].length}. List: ${fields[
-        key
-      ].join(', ')}`,
-    );
+    console.log(`Number of students: ${countStudents}`);
+    for (const field of Object.keys(fields)) {
+      const n = fields[field].count;
+      const names = fields[field].students.join(', ');
+      // console.log(`Number of students in ${field}: ${n}. List: ${names}`);
+      console.log(`Number of students in ${field}: ${n}. List: ${names}`);
+    }
+  } catch (error) {
+    throw new Error('Cannot load the database');
   }
 }
 
